@@ -101,6 +101,22 @@ if 'res' in st.session_state:
             st.pyplot(fig2)
         else:
             st.write("**Optimal K (Elbow Method)**")
-            st.info("Run `determine_optimal_k` via backend for full elbow curve. Visualizing data relationships instead.")
-            fig3 = sns.pairplot(df[['Age', 'Annual_Income_k', 'Spending_Score']])
+            with st.spinner('Calculating elbow curve...'):
+                optimal_k, sse_list, sil_list = determine_optimal_k(data_np, max_k=8)
+            
+            fig3, ax1 = plt.subplots(figsize=(8, 6))
+            K = range(2, 9)
+            color = 'tab:blue'
+            ax1.set_xlabel('Number of clusters (k)')
+            ax1.set_ylabel('SSE (Inertia)', color=color)
+            ax1.plot(K, sse_list, color=color, marker='o', label='SSE')
+            ax1.tick_params(axis='y', labelcolor=color)
+            
+            ax2 = ax1.twinx()
+            color = 'tab:orange'
+            ax2.set_ylabel('Silhouette Score', color=color)
+            ax2.plot(K, sil_list, color=color, marker='s', label='Silhouette Score')
+            ax2.tick_params(axis='y', labelcolor=color)
+            
+            fig3.tight_layout()
             st.pyplot(fig3)

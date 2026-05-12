@@ -54,6 +54,17 @@ def perform_eda(df, output_dir='plots'):
     # Summary stats
     stats = df[features].describe()
     
+    # Histogram of distributions
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    for i, feature in enumerate(features):
+        row = i // 2
+        col = i % 2
+        sns.histplot(df[feature], ax=axes[row, col], kde=True, color='skyblue')
+        axes[row, col].set_title(f'Distribution of {feature.replace("_", " ")}')
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/eda_histograms.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
     # Pairplot to see distributions and correlations
     plt.figure(figsize=(10, 8))
     sns.pairplot(df, vars=features, hue='True_Cluster', palette='viridis', corner=True)

@@ -51,8 +51,20 @@ if st.sidebar.button("Run Clustering"):
         elif algorithm == "ES":
             res = ES(data_np, k_target, mu=max(2, pop_size//5), lambda_=pop_size, max_iter=max_iter).run()
 
+    st.session_state['res'] = res
+    st.session_state['algo_used'] = algorithm
+    st.session_state['k_used'] = k_target
+    st.session_state['data_np'] = data_np
+
+if 'res' in st.session_state:
+    res = st.session_state['res']
+    algo_used = st.session_state['algo_used']
+    k_used = st.session_state['k_used']
+    data_np = st.session_state['data_np']
+
     # Display Metrics
-    st.subheader("Clustering Results")
+    st.subheader(f"Clustering Results - {algo_used}")
+    st.info(f"Results below were generated using the **{algo_used}** algorithm with k={k_used}.")
     col1, col2 = st.columns(2)
     col1.metric("Sum of Squared Errors (SSE)", f"{res['sse']:.4f}")
     col2.metric("Silhouette Score", f"{res['silhouette']:.4f}")
@@ -70,7 +82,7 @@ if st.sidebar.button("Run Clustering"):
         scatter = ax.scatter(data_2d[:, 0], data_2d[:, 1], c=res['labels'], cmap='viridis', s=30, alpha=0.7)
         
         # Centroids
-        centroids_reshaped = np.array(res['centroids']).reshape(k_target, -1)
+        centroids_reshaped = np.array(res['centroids']).reshape(k_used, -1)
         centroids_2d = pca.transform(centroids_reshaped)
         ax.scatter(centroids_2d[:, 0], centroids_2d[:, 1], c='red', marker='X', s=200, label='Centroids')
         
@@ -79,7 +91,7 @@ if st.sidebar.button("Run Clustering"):
         st.pyplot(fig)
         
     with col_plot2:
-        if algorithm != "K-Means":
+        if algo_used != "K-Means":
             st.write("**Convergence Curve (Fitness history)**")
             fig2, ax2 = plt.subplots(figsize=(8, 6))
             ax2.plot(res['history'], marker='', color='blue', linewidth=2)
